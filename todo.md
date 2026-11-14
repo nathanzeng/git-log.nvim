@@ -8,3 +8,5 @@ i would like if dd and K worked on any part of the 3 lines
 
 paging??
 else bump it to 100 maybe
+
+it would be sick if the CI network request could make the loading bar across the top go
