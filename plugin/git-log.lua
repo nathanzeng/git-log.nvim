@@ -1,3 +1,7 @@
+local augroup = vim.api.nvim_create_augroup('gitlog')
+
+-- TODO: some of this ci stuff may need slop removal
+-- not sure if this namespace is needed for example
 local ci_ns = vim.api.nvim_create_namespace('gitlog-ci')
 
 local function show_ci(buf, commits, cwd)
@@ -166,3 +170,35 @@ end
 vim.api.nvim_create_user_command('GitLog', function()
   show_commits()
 end)
+
+vim.api.nvim_create_autocmd('FileType', {
+  group = augroup,
+  pattern = 'gitlog',
+  callback = function()
+    vim.keymap.set('n', 'dd', function()
+      local commit_hash = vim.api.nvim_get_current_line()
+
+      vim.cmd(([[DiffviewOpen %s~1...%s]]):format(commit_hash, commit_hash))
+    end, { desc = 'View diff', buf = 0 })
+
+    vim.keymap.set('n', 'gx', function()
+      local commit_hash = vim.api.nvim_get_current_line()
+
+      -- TODO: needs error handling
+      vim.system({ 'gh', 'browse', commit_hash })
+    end, { desc = 'View diff', buf = 0 })
+
+    -- TODO: also needs error handling
+    vim.keymap.set('n', 'K', function()
+      local commit_hash = vim.api.nvim_get_current_line()
+      local long_description = vim
+        .system({ 'git', 'show', '--format=%s%n%n%b', '--no-patch', commit_hash }, { text = true })
+        :wait()
+
+      vim.lsp.util.open_floating_preview({ long_description.stdout }, 'plaintext', {
+        max_width = 80,
+        focus_id = 'my_plugin_hover',
+      })
+    end, { desc = 'Show details', buf = 0 })
+  end,
+})
