@@ -6,6 +6,8 @@ need to add error handling to some of the stuff that you wrote
 
 i would like if dd and K worked on any part of the 3 lines
 
+i would like the date to be absolute timestamps, ideally in a readable format
+
 paging??
 else bump it to 100 maybe
 
