@@ -107,7 +107,8 @@ end
 
 local function get_commits(cwd)
   local result = vim
-    .system({ 'git', 'log', '--format=%H%n%s%n%an | %ah%n', '-n', '50' }, { cwd = cwd, text = true })
+    -- Commits are separated with NUL byte %x00 because git commit messages cannot contain them
+    .system({ 'git', 'log', '--format=%H%n%s%n%an | %ah%n%b%x00', '-n', '50' }, { cwd = cwd, text = true })
     :wait()
 
   if result.code ~= 0 then
@@ -115,7 +116,20 @@ local function get_commits(cwd)
     return
   end
 
-  return vim.split(vim.trim(result.stdout), '\n')
+  local commits = {}
+
+  for commit in result.stdout:gmatch('([^\0]+)') do
+    local lines = vim.split(vim.trim(commit), '\n')
+    -- Append ... if there is a body to the commit
+    if #lines > 3 then
+      lines[2] = lines[2] .. '...'
+    end
+    vim.list_extend(commits, vim.list_slice(lines, 1, 3))
+    -- Final new line
+    table.insert(commits, '')
+  end
+
+  return commits
 end
 
 local function show_commits()
