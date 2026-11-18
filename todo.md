@@ -1,4 +1,4 @@
-i want the ... that indicates whether the commit has a description/body or not
+i think i want ci as the first item on the line
 
 need to read and unslop the code
 
