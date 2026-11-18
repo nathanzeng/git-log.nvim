@@ -118,16 +118,21 @@ local function get_commits(cwd)
 
   local commits = {}
 
-  for commit in result.stdout:gmatch('([^\0]+)') do
+  for commit in result.stdout:gmatch('([^%z]+)') do
     local lines = vim.split(vim.trim(commit), '\n')
     -- Append ... if there is a body to the commit
     if #lines > 3 then
       lines[2] = lines[2] .. '...'
     end
     vim.list_extend(commits, vim.list_slice(lines, 1, 3))
-    -- Final new line
+    -- New line
     table.insert(commits, '')
   end
+
+  -- FIXME: bit hacky here
+  -- Remove the final new line
+  table.remove(commits)
+  table.remove(commits)
 
   return commits
 end
